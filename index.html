@@ -33,7 +33,7 @@
 
             /* Biến hỗ trợ Theme */
             --bg-color: #e8f5e9;
-            --bg-image: url('tuongki.jpg'); /* Đã đổi sang dùng chung ảnh */
+            --bg-image: url('tuongki.jpg'); 
             /* Lớp phủ sáng cho Light Mode */
             --bg-overlay: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(240, 253, 244, 0.85) 100%);
             
@@ -60,8 +60,6 @@
             --m-row-border: rgba(0, 0, 0, 0.1);
             
             --legend-bg: rgba(255, 255, 255, 0.65);
-            --footer-bg: rgba(22, 163, 74, 0.20);
-            --footer-border: rgba(22, 163, 74, 0.3);
             --footer-text: var(--accent-dark);
             
             /* Trạng thái kết quả Light */
@@ -120,8 +118,6 @@
             --m-row-border: rgba(255, 255, 255, 0.05);
             
             --legend-bg: rgba(10, 35, 20, 0.6);
-            --footer-bg: rgba(15, 45, 25, 0.6);
-            --footer-border: rgba(100, 255, 150, 0.2);
             --footer-text: var(--accent-color);
 
             /* Trạng thái kết quả Dark */
@@ -184,18 +180,6 @@
             margin: 0; display: flex; align-items: center; justify-content: center; gap: 15px;
             text-transform: uppercase;
             transition: color 0.5s;
-        }
-
-        /* Nút chuyển theme tích hợp vào icon bình thí nghiệm */
-        .theme-toggle-icon {
-            color: var(--icon-flask);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-        }
-        .theme-toggle-icon:hover {
-            color: var(--icon-flask-hover);
-            transform: scale(1.1) rotate(10deg);
         }
 
         /* --- SEARCH BOX --- */
@@ -364,20 +348,31 @@
             border: 1px solid var(--st-i-border); text-align: center; font-weight: 600;
         }
 
+        /* --- FOOTER: Biến thành Badge Trong Mờ --- */
         footer {
-            margin-top: 30px;
+            margin: 30px auto 10px auto; 
             text-align: center;
             color: var(--footer-text); 
             font-weight: 700;
-            font-size: 14px;
+            font-size: 13px;
             text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-            background: var(--footer-bg); 
-            padding: 10px 20px;
-            border-radius: 20px;
-            border: 1px solid var(--footer-border);
+            background: rgba(255, 255, 255, 0.25); 
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 8px 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
             transition: all 0.5s;
+            width: max-content;
+            max-width: 90%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
-        body.dark-mode footer { text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+        body.dark-mode footer { 
+            text-shadow: 0 1px 4px rgba(0,0,0,0.8); 
+            background: rgba(10, 35, 20, 0.6);
+            border-color: rgba(100, 255, 150, 0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -557,7 +552,7 @@
             .selected-drugs td:last-child { width: auto; padding-left: 10px; }
             .delete-btn { width: 24px; height: 24px; font-size: 12px; }
             
-            footer { font-size: 11px; padding: 6px; margin-top: 10px; }
+            footer { font-size: 11px; padding: 6px 14px; margin-top: 15px; }
         }
     </style>
 </head>
@@ -569,7 +564,11 @@
         <header>
             <h2>
                 <button onclick="toggleTheme()" title="Chuyển chế độ Sáng/Tối" style="background: transparent; border: none; padding: 0; margin: 0; outline: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
-                    <i class="fas fa-flask theme-toggle-icon"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="var(--icon-stroke)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: var(--icon-filter); cursor: pointer; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.1) rotate(10deg)'" onmouseout="this.style.transform='scale(1)'">
+                        <path d="M10.5 20.5l-6-6a4.95 4.95 0 1 1 7-7l6 6a4.95 4.95 0 1 1-7 7Z" fill="var(--icon-fill)"/>
+                        <line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/>
+                        <path d="M19 4v6m-3-3h6" stroke-width="2"/>
+                    </svg>
                 </button>
                 Tra cứu tương hợp - tương kỵ
             </h2>
@@ -654,9 +653,6 @@
             
             document.getElementById("desktopTableWrapper").style.display = "block";
             document.getElementById("mobileResults").style.display = "none";
-            
-            // XÓA ĐOẠN ĐANG TẢI DỮ LIỆU... Ở ĐÂY VÌ TẢI CỰC NHANH
-            // tableBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--accent-dark); width: 100%; display: block; border: none; background: transparent;"><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...</td></tr>`;
             
             try {
                 // Lấy dữ liệu tĩnh JSON từ GitHub
