@@ -72,6 +72,10 @@
 
             --icon-flask: var(--accent-dark);
             --icon-flask-hover: #059669;
+
+            /* Ô tên thuốc trong bảng kết quả */
+            --td-drug-color: var(--accent-dark);
+            --td-drug-bg: var(--accent-bg);
         }
 
         /* --- DARK MODE (RỪNG PHÉP THUẬT) --- */
@@ -131,6 +135,10 @@
 
             --icon-flask: var(--accent-color);
             --icon-flask-hover: #ffffff;
+
+            /* Dark mode: ô tên thuốc - nền sáng hơn để tương phản với tiêu đề */
+            --td-drug-color: #bbf7d0;
+            --td-drug-bg: rgba(20, 83, 45, 0.65);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -890,14 +898,14 @@
 
             // --- 1. GENERATE DESKTOP TABLE (MATRIX) ---
             let tableHtml = '<tr><td style="background:var(--accent-dark); color:var(--th-text); font-weight:800; text-align:center; vertical-align:middle; border-radius:8px; border: none;">THUỐC</td>'; 
-            selectedDrugs.forEach(drug=>{tableHtml+=`<td style="font-weight:bold; background:var(--accent-bg); color:var(--accent-dark); border-color: transparent;">${drug}</td>`});
+            selectedDrugs.forEach(drug=>{tableHtml+=`<td style="font-weight:bold; background:var(--td-drug-bg); color:var(--td-drug-color); border-color: transparent;">${drug}</td>`});
             tableHtml+='</tr>';
 
             // --- 2. GENERATE MOBILE LIST (CARD VIEW) ---
             let mobileHtml = '';
 
             selectedDrugs.forEach((drug1,index1)=>{
-                tableHtml+=`<tr><td style="font-weight:bold; background:var(--accent-bg); color:var(--accent-dark); text-align:center; border-color: transparent;">${drug1}</td>`;
+                tableHtml+=`<tr><td style="font-weight:bold; background:var(--td-drug-bg); color:var(--td-drug-color); text-align:center; border-color: transparent;">${drug1}</td>`;
                 
                 mobileHtml += `<div class="m-card"><div class="m-card-header">${drug1}</div>`;
 
