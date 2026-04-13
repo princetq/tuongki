@@ -165,7 +165,7 @@
             flex-direction: column;
         }
 
-        /* ── Căn giữa trang / đẩy lên top ── */
+        /* ── Căn giữa dọc: spacer mượt, container không đổi kích thước ── */
         .page-spacer {
             flex-shrink: 0;
             flex-grow: 0;
@@ -354,34 +354,25 @@
         .controversial { background-color: var(--st-v-bg) !important; color: var(--st-v-text) !important; font-weight: bold; border: 1px solid var(--st-v-border) !important; }
         .self-intersection { background-color: var(--st-self-bg) !important; color: var(--st-self-text) !important; }
 
-
-        /* ── BẢNG KẾT QUẢ: TỰ CO (table-fit) & CUỘN NGANG (table-scroll) ── */
-        .result-table-wrapper.table-fit {
-            overflow-x: hidden;
-        }
-        .result-table-wrapper.table-fit table {
-            table-layout: fixed;
-            width: 100%;
-        }
-        .result-table-wrapper.table-fit th,
-        .result-table-wrapper.table-fit td {
-            word-break: break-word;
-            overflow-wrap: break-word;
-            white-space: normal;
-            font-size: var(--table-fit-fs, 13px);
-            padding: var(--table-fit-pad, 8px 6px);
-        }
-        .result-table-wrapper.table-fit td:first-child { min-width: 0; }
-        .result-table-wrapper.table-scroll {
+        /* ── Bảng kết quả: luôn cho phép scroll ngang nếu cần ── */
+        .result-table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
+        /* Khi ít thuốc (table-fit): thu nhỏ chữ, KHÔNG fixed layout */
+        .result-table-wrapper.table-fit th,
+        .result-table-wrapper.table-fit td {
+            font-size: var(--table-fit-fs, 13px);
+            padding: var(--table-fit-pad, 8px 6px);
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        /* Khi nhiều thuốc (table-scroll): để bảng rộng tự nhiên */
         .result-table-wrapper.table-scroll table {
-            width: auto;
-            min-width: 100%;
+            min-width: max-content;
         }
 
-        /* GIẢM SIZE NÚT XÓA KÈM VỚI VIỆC GIẢM CHIỀU CAO HÀNG */
+                /* GIẢM SIZE NÚT XÓA KÈM VỚI VIỆC GIẢM CHIỀU CAO HÀNG */
         .delete-btn {
             background: var(--st-i-bg); color: var(--st-i-border); border: 1px solid var(--st-i-border);
             width: 28px; height: 28px; border-radius: 50%;
@@ -685,30 +676,22 @@
             } else if (savedTheme === 'light') {
                 document.body.classList.remove('dark-mode');
             } else {
-                // Chưa lưu → dùng thiết lập hệ thống
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                     document.body.classList.add('dark-mode');
-                } else {
-                    document.body.classList.remove('dark-mode');
                 }
             }
         }
-
-        // Lắng nghe thay đổi theme hệ thống khi người dùng chưa chọn thủ công
         if (window.matchMedia) {
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
                 if (!localStorage.getItem('y_site_theme')) {
-                    if (e.matches) {
-                        document.body.classList.add('dark-mode');
-                    } else {
-                        document.body.classList.remove('dark-mode');
-                    }
+                    e.matches ? document.body.classList.add('dark-mode')
+                              : document.body.classList.remove('dark-mode');
                 }
             });
         }
         
         initTheme();
-        setPageCentered(); // lần đầu vào trang: căn giữa
+        setPageCentered();
 
         function toggleTheme() {
             if (document.body.classList.contains('dark-mode')) {
@@ -721,16 +704,13 @@
         }
 
 
-        // ── Căn giữa / đẩy lên top ──
-        function setPageCentered() {
-            document.body.classList.add('page-centered');
-        }
+        function setPageCentered() { document.body.classList.add('page-centered'); }
         function setPageTop() {
             document.body.classList.remove('page-centered');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        let jsonData = null;
+                let jsonData = null;
         let selectedDrugs = [];
         let suggestionsList = [];
         let isTableGenerated = false; 
@@ -808,9 +788,10 @@
             document.getElementById("desktopTableWrapper").style.display = "block";
             document.getElementById("mobileResults").style.display = "none";
             document.getElementById("mobileResults").innerHTML = ""; 
-            document.getElementById("desktopTableWrapper").classList.remove('table-fit', 'table-scroll');
-            document.getElementById("desktopTableWrapper").style.removeProperty('--table-fit-fs');
-            document.getElementById("desktopTableWrapper").style.removeProperty('--table-fit-pad');
+            var _w = document.getElementById("desktopTableWrapper");
+            _w.classList.remove('table-fit','table-scroll');
+            _w.style.removeProperty('--table-fit-fs');
+            _w.style.removeProperty('--table-fit-pad');
 
             const tableBody = document.getElementById("tableBody");
             tableBody.classList.add("selected-drugs"); 
@@ -859,7 +840,7 @@
             btn.innerHTML = '<i class="fas fa-search"></i> Tạo bảng kết quả';
             btn.className = 'btn-search'; 
             btn.setAttribute('onclick', 'searchCompatibility()');
-            setPageCentered(); // trở về giữa trang sau khi reset
+            setPageCentered();
         }
 
         function toggleCell(cell, symbol, text) {
@@ -946,31 +927,25 @@
             document.getElementById("mobileResults").innerHTML = mobileHtml; 
             
             document.getElementById("legend").style.display="block";
-            setPageTop(); // đẩy giao diện lên top khi có kết quả
+            setPageTop();
 
-            // ── Kiểm soát tràn / cuộn ngang bảng kết quả ──
             (function() {
-                var _wrap = document.getElementById("desktopTableWrapper");
-                var _mobile = window.innerWidth <= 499;
-                var _max = _mobile ? 3 : 4;
-                var _cnt = selectedDrugs.length;
-                _wrap.classList.remove('table-fit', 'table-scroll');
-                if (_cnt <= _max) {
-                    _wrap.classList.add('table-fit');
+                var _w = document.getElementById("desktopTableWrapper");
+                var _mob = window.innerWidth <= 499;
+                var _max = _mob ? 3 : 4;
+                var _n = selectedDrugs.length;
+                _w.classList.remove('table-fit','table-scroll');
+                if (_n <= _max) {
+                    _w.classList.add('table-fit');
                     var _fs, _pad;
-                    if (_mobile) {
-                        _fs  = _cnt <= 2 ? '12px' : '10px';
-                        _pad = _cnt <= 2 ? '6px 5px' : '5px 3px';
-                    } else {
-                        _fs  = _cnt <= 2 ? '15px' : _cnt === 3 ? '13px' : '11px';
-                        _pad = _cnt <= 2 ? '12px 10px' : _cnt === 3 ? '10px 8px' : '8px 6px';
-                    }
-                    _wrap.style.setProperty('--table-fit-fs',  _fs);
-                    _wrap.style.setProperty('--table-fit-pad', _pad);
+                    if (_mob) { _fs = _n<=2?'12px':'10px'; _pad = _n<=2?'6px 5px':'5px 3px'; }
+                    else       { _fs = _n<=2?'15px':_n===3?'13px':'11px'; _pad = _n<=2?'12px 10px':_n===3?'10px 8px':'8px 6px'; }
+                    _w.style.setProperty('--table-fit-fs',  _fs);
+                    _w.style.setProperty('--table-fit-pad', _pad);
                 } else {
-                    _wrap.classList.add('table-scroll');
-                    _wrap.style.removeProperty('--table-fit-fs');
-                    _wrap.style.removeProperty('--table-fit-pad');
+                    _w.classList.add('table-scroll');
+                    _w.style.removeProperty('--table-fit-fs');
+                    _w.style.removeProperty('--table-fit-pad');
                 }
             })();
 
