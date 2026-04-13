@@ -426,10 +426,23 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(22, 163, 74, 0.3); border-radius: 10px; }
-        body.dark-mode ::-webkit-scrollbar-thumb { background: rgba(74, 222, 128, 0.4); }
+        /* ── SCROLLBAR: ẩn native, overlay custom xanh lá gradient glass ── */
+        @media (hover: hover) {
+            html { scrollbar-width: none; -ms-overflow-style: none; }
+            ::-webkit-scrollbar { display: none; width: 0; }
+        }
+        #csb { position:fixed; top:0; right:3px; width:4px; height:100vh; z-index:99999; pointer-events:none; opacity:0; transition:opacity 0.25s ease; }
+        #csb.show { opacity:1; }
+        #csb-thumb {
+            position:absolute; right:0; width:4px; border-radius:6px; min-height:30px;
+            transition: background 0.25s ease;
+            background: linear-gradient(180deg, rgba(74,222,128,0.65) 0%, rgba(22,163,74,0.45) 100%);
+            box-shadow: 0 0 6px rgba(22,163,74,0.3), inset 0 0 3px rgba(255,255,255,0.2);
+        }
+        body.dark-mode #csb-thumb {
+            background: linear-gradient(180deg, rgba(74,222,128,0.85) 0%, rgba(34,197,94,0.60) 100%);
+            box-shadow: 0 0 8px rgba(74,222,128,0.4), inset 0 0 3px rgba(255,255,255,0.1);
+        }
 
         /* =================================================================
            TỐI ƯU HÓA CAO CẤP CHO SMARTPHONE (Mobile Layout)
@@ -978,6 +991,86 @@
         });
 
         window.onload = fetchData;
+
+        // ── CUSTOM SCROLLBAR: overlay xanh lá gradient glass, PC only ──
+        (function() {
+            if (window.matchMedia('(hover: none)').matches) return;
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return;
+
+            var track = document.getElementById('csb');
+            var thumb = document.getElementById('csb-thumb');
+            if (!track || !thumb) return;
+
+            var hideTimer = null, isDragging = false;
+            var dragStartY = 0, dragStartScrollTop = 0;
+
+            function getScrollInfo() {
+                return {
+                    st: window.pageYOffset || document.documentElement.scrollTop,
+                    sh: document.documentElement.scrollHeight,
+                    ch: document.documentElement.clientHeight || window.innerHeight
+                };
+            }
+
+            function updateThumb() {
+                var s = getScrollInfo();
+                if (s.sh <= s.ch) { track.classList.remove('show'); return; }
+                var thumbH = Math.max(30, (s.ch / s.sh) * s.ch);
+                var maxTop  = s.ch - thumbH;
+                thumb.style.height = thumbH + 'px';
+                thumb.style.top    = ((s.st / (s.sh - s.ch)) * maxTop) + 'px';
+            }
+
+            function showBar() {
+                clearTimeout(hideTimer);
+                updateThumb();
+                var s = getScrollInfo();
+                if (s.sh > s.ch) track.classList.add('show');
+            }
+
+            function hideBar(delay) {
+                clearTimeout(hideTimer);
+                if (isDragging) return;
+                hideTimer = setTimeout(function() { track.classList.remove('show'); }, delay || 900);
+            }
+
+            window.addEventListener('scroll', function() { showBar(); hideBar(900); }, { passive: true });
+
+            document.addEventListener('mousemove', function(e) {
+                var fromRight = (document.documentElement.clientWidth || window.innerWidth) - e.clientX;
+                if (fromRight <= 20) { showBar(); clearTimeout(hideTimer); }
+                else if (track.classList.contains('show') && !isDragging) hideBar(900);
+            });
+            document.addEventListener('mouseleave', function() { hideBar(300); });
+
+            thumb.style.pointerEvents = 'auto';
+            thumb.style.cursor = 'pointer';
+            thumb.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                isDragging = true;
+                dragStartY = e.clientY;
+                dragStartScrollTop = window.pageYOffset;
+                document.body.style.userSelect = 'none';
+            });
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                var s = getScrollInfo();
+                var thumbH = Math.max(30, (s.ch / s.sh) * s.ch);
+                var delta  = e.clientY - dragStartY;
+                window.scrollTo(0, dragStartScrollTop + (delta / (s.ch - thumbH)) * (s.sh - s.ch));
+                updateThumb();
+            });
+            document.addEventListener('mouseup', function() {
+                if (!isDragging) return;
+                isDragging = false;
+                document.body.style.userSelect = '';
+                hideBar(900);
+            });
+            window.addEventListener('resize', function() { if (track.classList.contains('show')) updateThumb(); });
+        })();
+
     </script>
+    <div id="csb"><div id="csb-thumb"></div></div>
+
 </body>
 </html>
