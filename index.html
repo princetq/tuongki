@@ -34,8 +34,8 @@
             /* Biến hỗ trợ Theme */
             --bg-color: #e8f5e9;
             --bg-image: url('tuongki.jpg'); 
-            /* Lớp phủ sáng cho Light Mode */
-            --bg-overlay: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(240, 253, 244, 0.85) 100%);
+            /* ĐÃ XÓA LỚP MỜ TRẮNG TRONG LIGHT MODE - Nền trong suốt 100% */
+            --bg-overlay: linear-gradient(135deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 100%);
             
             --header-bg: rgba(255, 255, 255, 0.65);
             --search-bg: rgba(255, 255, 255, 0.55);
@@ -92,7 +92,7 @@
             --neutral-color: #a7d3b0;
 
             --bg-color: #05190f;
-            /* Lớp phủ tối cho Dark Mode */
+            /* Lớp phủ tối cho Dark Mode vẫn giữ để làm nổi bật chữ sáng trên nền */
             --bg-overlay: linear-gradient(135deg, rgba(2, 10, 5, 0.4) 0%, rgba(5, 20, 10, 0.7) 100%);
             
             --header-bg: rgba(10, 35, 20, 0.55);
@@ -180,6 +180,23 @@
             margin: 0; display: flex; align-items: center; justify-content: center; gap: 15px;
             text-transform: uppercase;
             transition: color 0.5s;
+        }
+
+        /* Nút chuyển theme sử dụng Icon gốc (FontAwesome) và phóng to */
+        .theme-toggle-icon {
+            color: var(--icon-flask);
+            cursor: pointer;
+            font-size: 42px; /* Tăng kích thước cực lớn */
+            line-height: 1;
+            transition: transform 0.3s ease, color 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        body.dark-mode .theme-toggle-icon {
+            filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.6));
+        }
+        .theme-toggle-icon:hover {
+            color: var(--icon-flask-hover);
+            transform: scale(1.15) rotate(10deg);
         }
 
         /* --- SEARCH BOX --- */
@@ -348,7 +365,7 @@
             border: 1px solid var(--st-i-border); text-align: center; font-weight: 600;
         }
 
-        /* --- FOOTER: Biến thành Badge Trong Mờ --- */
+        /* --- FOOTER: Badge Trong Mờ --- */
         footer {
             margin: 30px auto 10px auto; 
             text-align: center;
@@ -388,7 +405,6 @@
         @media only screen and (max-width: 768px) {
             /* --- CẤU HÌNH INPUT CHO MOBILE --- */
             input {
-                /* Trạng thái bình thường: Giữ style kính, chữ trắng/sáng */
                 color: var(--primary-text) !important;
                 background: var(--mobile-input-bg) !important; 
                 transition: all 0.2s, background 0.5s, color 0.5s;
@@ -399,7 +415,7 @@
             input:focus {
                 background: var(--input-focus) !important;
                 color: var(--input-text) !important;
-                text-shadow: none !important; /* Bỏ bóng chữ */
+                text-shadow: none !important; 
                 box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.2);
             }
             body.dark-mode input:focus { color: white !important; box-shadow: 0 0 15px rgba(74, 222, 128, 0.3); }
@@ -424,6 +440,9 @@
                 margin-bottom: 12px; 
                 border-radius: 16px; 
             }
+            
+            /* Kích thước Icon trên điện thoại */
+            .theme-toggle-icon { font-size: 32px; }
             header h2 { font-size: 16px; flex-direction: row; gap: 8px; }
 
             .search-container { 
@@ -564,11 +583,7 @@
         <header>
             <h2>
                 <button onclick="toggleTheme()" title="Chuyển chế độ Sáng/Tối" style="background: transparent; border: none; padding: 0; margin: 0; outline: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="var(--icon-stroke)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: var(--icon-filter); cursor: pointer; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.1) rotate(10deg)'" onmouseout="this.style.transform='scale(1)'">
-                        <path d="M10.5 20.5l-6-6a4.95 4.95 0 1 1 7-7l6 6a4.95 4.95 0 1 1-7 7Z" fill="var(--icon-fill)"/>
-                        <line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/>
-                        <path d="M19 4v6m-3-3h6" stroke-width="2"/>
-                    </svg>
+                    <i class="fas fa-flask theme-toggle-icon"></i>
                 </button>
                 Tra cứu tương hợp - tương kỵ
             </h2>
@@ -619,7 +634,6 @@
         // ── LOGIC CHUYỂN ĐỔI THEME ──
         function initTheme() {
             const savedTheme = localStorage.getItem('y_site_theme');
-            // Vì yêu cầu mặc định là Light mode, ta bỏ dò hệ thống, chỉ dùng cache
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-mode');
             } else {
