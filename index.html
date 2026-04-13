@@ -144,6 +144,9 @@
             display: flex;
             flex-direction: column;
             transition: background-color 0.5s, color 0.5s;
+            /* Đảm bảo body không vượt quá viewport trên mobile */
+            max-width: 100vw;
+            overflow-x: hidden;
         }
 
         .ambient-light {
@@ -163,6 +166,8 @@
             flex: 1; 
             display: flex;
             flex-direction: column;
+            /* Chống tràn trên container */
+            box-sizing: border-box;
         }
 
         /* --- HEADER --- */
@@ -266,6 +271,7 @@
             padding: 12px 20px; cursor: pointer; border-bottom: 1px solid rgba(100, 100, 100, 0.1);
             font-size: 15px; color: var(--primary-text); font-weight: 500;
             transition: all 0.2s;
+            word-break: break-word; /* Đảm bảo chữ dài không tràn popup */
         }
         .suggestions div:hover { background: var(--sugg-hover); color: var(--accent-dark); }
         body.dark-mode .suggestions div:hover { color: white; }
@@ -296,27 +302,24 @@
             border: 1px solid var(--glass-border);
             box-shadow: var(--glass-shadow);
             transition: all 0.5s;
-            /* ĐẢM BẢO KHÔNG BỊ TRÀN, CHO PHÉP CUỘN NGANG KHI BẢNG QUÁ LỚN TRÊN PC */
             width: 100%;
             box-sizing: border-box;
             overflow-x: hidden;
         }
 
         .result-table-wrapper {
-            /* VÙNG CUỘN NGANG CHO BẢNG DESKTOP */
             width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
 
         table {
-            /* Ép bảng chia đều cột, tự thu nhỏ chữ và xuống dòng */
             width: 100%; 
             table-layout: fixed; 
             border-collapse: separate; 
             border-spacing: 4px;
             margin-bottom: 20px;
-            min-width: max-content; /* Ngăn cột bị ép quá nhỏ gây mất chữ */
+            min-width: max-content; 
         }
 
         th {
@@ -324,7 +327,7 @@
             padding: 12px; border-radius: 8px;
             font-size: 14px; font-weight: 700; text-transform: uppercase;
             transition: all 0.5s;
-            word-wrap: break-word; /* Ép xuống dòng nếu chữ quá dài */
+            word-wrap: break-word; 
         }
         
         td {
@@ -334,15 +337,14 @@
             font-size: 14px; color: var(--primary-text);
             border: 1px solid var(--td-border);
             transition: transform 0.2s, background 0.5s, color 0.5s, border-color 0.5s;
-            word-wrap: break-word; /* Ép xuống dòng nếu chữ quá dài */
+            word-wrap: break-word; 
         }
 
         /* --- MEDIA QUERY GIAO DIỆN DESKTOP (Min Width: 500px) --- */
         @media (min-width: 500px) {
-            th { font-size: 15px; padding: 12px 8px; } /* Giảm nhẹ size chữ và padding để vừa nhiều cột hơn */
+            th { font-size: 15px; padding: 12px 8px; } 
             td { font-size: 15px; padding: 10px 8px; }
             td:first-child { font-size: 15px; }
-            /* Cố định độ rộng tối thiểu cho các cột kết quả (để nếu >= 5 thuốc thì sẽ cuộn ngang) */
             th:not(:first-child), td:not(:first-child) {
                 min-width: 80px; 
             }
@@ -352,7 +354,6 @@
             text-align: center; 
             font-weight: 700; color: var(--accent-dark);
             background: var(--td-first-bg);
-            /* Độ rộng cột tên thuốc */
             width: 120px;
             min-width: 120px;
             word-wrap: break-word;
@@ -434,6 +435,15 @@
         .mobile-results { display: none; }
 
         @media only screen and (max-width: 499px) {
+            /* Fix overflow trên Mobile */
+            body { 
+                padding: 10px !important; 
+            }
+            
+            .container { 
+                padding: 0;
+            }
+
             /* --- CẤU HÌNH INPUT CHO MOBILE --- */
             input {
                 color: var(--primary-text) !important;
@@ -456,15 +466,6 @@
             input:focus::placeholder { color: #94a3b8 !important; }
             body.dark-mode input:focus::placeholder { color: rgba(255,255,255,0.5) !important; }
 
-            body { padding: 5px; } 
-            
-            .container { 
-                width: 100%; 
-                max-width: 100%; 
-                margin: 0; 
-                padding: 0;
-            }
-
             header { 
                 width: 100%;
                 padding: 12px; 
@@ -482,12 +483,15 @@
                 gap: 8px; 
                 border-radius: 20px; 
                 margin-bottom: 15px; 
+                box-sizing: border-box; /* Đảm bảo padding không cộng thêm vào chiều rộng */
             }
             .input-wrapper { width: 100%; }
-            input { padding: 10px 15px; font-size: 16px !important; height: 42px; border-color: var(--glass-border); }
-            .btn-search { width: 100%; margin-top: 0; padding: 10px; font-size: 14px; height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+            input { padding: 10px 15px; font-size: 16px !important; height: 42px; border-color: var(--glass-border); box-sizing: border-box;}
+            .btn-search { width: 100%; margin-top: 0; padding: 10px; font-size: 14px; height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; box-sizing: border-box;}
 
-            .result-table-wrapper { display: none; }
+            /* Ẩn triệt để bảng Desktop trên Mobile */
+            #desktopTableWrapper { display: none !important; }
+            .result-table-wrapper { display: none !important; }
             
             .result-panel {
                 padding: 12px; 
@@ -495,12 +499,7 @@
                 display: flex;
                 flex-direction: column;
                 align-items: stretch; 
-                box-sizing: border-box;
-            }
-
-            table { 
-                width: 100%; 
-                border-spacing: 0; 
+                box-sizing: border-box; /* Quan trọng để không tràn lề */
             }
 
             .mobile-results { 
@@ -508,6 +507,7 @@
                 flex-direction: column; 
                 gap: 8px; 
                 width: 100%; 
+                box-sizing: border-box;
             }
 
             .m-card {
@@ -525,9 +525,10 @@
                 color: var(--m-header-text);
                 padding: 6px 10px; 
                 font-weight: 700;
-                font-size: 12px; /* Tăng xíu cho dễ đọc trên Card */
+                font-size: 12px; 
                 text-align: center; 
                 transition: all 0.5s;
+                word-wrap: break-word;
             }
             .m-row {
                 display: flex;
@@ -536,7 +537,7 @@
                 padding: 4px 8px;
                 border-bottom: 1px solid var(--m-row-border); 
                 font-size: 12px; 
-                flex-wrap: wrap; 
+                flex-wrap: nowrap; /* Tránh text bị rớt dòng lộn xộn */
                 line-height: 1.3;
                 transition: border-color 0.5s;
             }
@@ -559,12 +560,13 @@
                 flex-shrink: 0; 
             }
 
-            .legend { text-align: left; padding: 8px; margin-top: 10px; }
+            .legend { text-align: left; padding: 8px; margin-top: 10px; box-sizing: border-box; width: 100%;}
             .legend span { 
                 display: flex; width: 100%; margin: 2px 0; 
                 justify-content: flex-start; 
                 font-size: 11px; 
                 padding: 3px 6px;
+                box-sizing: border-box;
             }
             
             .selected-drugs tr {
@@ -595,13 +597,14 @@
                 font-weight: 600; 
                 flex: 1; 
                 color: var(--primary-text);
+                word-break: break-word;
             }
             body:not(.dark-mode) .selected-drugs td:first-child { color: var(--accent-dark); }
             
             .selected-drugs td:last-child { width: auto; padding-left: 10px; }
             .delete-btn { width: 24px; height: 24px; font-size: 12px; }
             
-            footer { font-size: 11px; padding: 6px 14px; margin-top: 15px; }
+            footer { font-size: 11px; padding: 6px 14px; margin-top: 15px; box-sizing: border-box;}
         }
     </style>
 </head>
@@ -694,8 +697,14 @@
             const tableBody = document.getElementById("tableBody");
             const errorMessage = document.getElementById("errorMessage");
             
-            document.getElementById("desktopTableWrapper").style.display = "block";
-            document.getElementById("mobileResults").style.display = "none";
+            // Xử lý hiển thị ban đầu đúng chuẩn Responsive
+            if(window.innerWidth <= 499) {
+                document.getElementById("desktopTableWrapper").style.display = "none";
+                document.getElementById("mobileResults").style.display = "block";
+            } else {
+                document.getElementById("desktopTableWrapper").style.display = "block";
+                document.getElementById("mobileResults").style.display = "none";
+            }
             
             try {
                 const response = await fetch('tuong_ky_thuoc.json?t=' + new Date().getTime()); 
@@ -757,20 +766,31 @@
         }
 
         function updateSelectedDrugsTable() {
-            document.getElementById("desktopTableWrapper").style.display = "block";
-            document.getElementById("mobileResults").style.display = "none";
-            document.getElementById("mobileResults").innerHTML = ""; 
-
-            const tableBody = document.getElementById("tableBody");
-            tableBody.classList.add("selected-drugs"); 
+            const isMobile = window.innerWidth <= 499;
+            
+            if(isMobile) {
+                document.getElementById("desktopTableWrapper").style.display = "none";
+                document.getElementById("mobileResults").style.display = "flex";
+            } else {
+                document.getElementById("desktopTableWrapper").style.display = "block";
+                document.getElementById("mobileResults").style.display = "none";
+            }
+            
             document.getElementById("legend").style.display = "none";
             document.getElementById("tableHeaderTitle").textContent = "THÔNG TIN KẾT QUẢ";
 
-            tableBody.innerHTML = "";
+            const tableBody = document.getElementById("tableBody");
+            const mobileResults = document.getElementById("mobileResults");
+            
+            tableBody.classList.add("selected-drugs"); 
+
             if (selectedDrugs.length === 0) {
                 tableBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--empty-text-color); border: none; background: transparent;">Danh sách trống. Vui lòng nhập tên thuốc.</td></tr>`;
+                mobileResults.innerHTML = `<div style="text-align: center; color: var(--empty-text-color); padding: 20px;">Danh sách trống. Vui lòng nhập tên thuốc.</div>`;
                 return;
             }
+            
+            // Xây dựng HTML cho cả 2 view (ẩn hiện qua CSS)
             tableBody.innerHTML = selectedDrugs.map(drug => `
                 <tr>
                     <td>${drug}</td>
@@ -778,6 +798,20 @@
                         <button type="button" class="delete-btn" onclick="removeDrug('${drug.replace(/'/g,"\\'")}')"><i class="fas fa-times"></i></button>
                     </td>
                 </tr>`).join('');
+                
+            mobileResults.innerHTML = `
+                <table style="width:100%; border-spacing:0;">
+                    <tbody class="selected-drugs">
+                        ${selectedDrugs.map(drug => `
+                        <tr>
+                            <td>${drug}</td>
+                            <td style="width: 40px; padding-left: 0; text-align: right;">
+                                <button type="button" class="delete-btn" style="float:none; display:inline-flex;" onclick="removeDrug('${drug.replace(/'/g,"\\'")}')"><i class="fas fa-times"></i></button>
+                            </td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>
+            `;
         }
 
         function showSuggestions() {
@@ -825,10 +859,12 @@
 
         function searchCompatibility() {
             const tableBody = document.getElementById("tableBody");
+            const mobileResults = document.getElementById("mobileResults");
             const errorMessage = document.getElementById("errorMessage");
             
             tableBody.classList.remove("selected-drugs");
             tableBody.innerHTML="";
+            mobileResults.innerHTML="";
             errorMessage.style.display='none';
 
             if (selectedDrugs.length < 2) {
@@ -841,6 +877,17 @@
 
             isTableGenerated = true;
             document.getElementById("tableHeaderTitle").textContent = "THÔNG TIN KẾT QUẢ";
+
+            // Phân luồng hiển thị tùy thiết bị
+            const isMobile = window.innerWidth <= 499;
+            
+            if(isMobile) {
+                document.getElementById("desktopTableWrapper").style.display = "none";
+                mobileResults.style.display = "flex";
+            } else {
+                document.getElementById("desktopTableWrapper").style.display = "block";
+                mobileResults.style.display = "none";
+            }
 
             // --- 1. GENERATE DESKTOP TABLE (MATRIX) ---
             let tableHtml = '<tr><td style="background:var(--th-bg); color:var(--th-text); font-weight:800; text-align:center; vertical-align:middle; border-radius:8px; border: none; min-width: 120px;">THUỐC</td>'; 
@@ -891,7 +938,7 @@
             });
 
             tableBody.innerHTML = tableHtml; 
-            document.getElementById("mobileResults").innerHTML = mobileHtml; 
+            mobileResults.innerHTML = mobileHtml; 
             
             document.getElementById("legend").style.display="block";
 
@@ -919,8 +966,26 @@
             }
         });
 
+        // Xử lý chuyển đổi giao diện khi xoay màn hình hoặc đổi kích thước
         window.addEventListener('resize', function(){
             checkRotationWarning();
+            
+            // Cập nhật lại view (Desktop vs Mobile) nếu bảng đang mở hoặc danh sách thuốc đang mở
+            const isMobile = window.innerWidth <= 499;
+            const desktopWrapper = document.getElementById("desktopTableWrapper");
+            const mobileResults = document.getElementById("mobileResults");
+            
+            if(isTableGenerated) {
+                if(isMobile) {
+                    desktopWrapper.style.display = "none";
+                    mobileResults.style.display = "flex";
+                } else {
+                    desktopWrapper.style.display = "block";
+                    mobileResults.style.display = "none";
+                }
+            } else {
+                updateSelectedDrugsTable();
+            }
         });
 
         window.onload = fetchData;
