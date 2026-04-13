@@ -296,11 +296,27 @@
             border: 1px solid var(--glass-border);
             box-shadow: var(--glass-shadow);
             transition: all 0.5s;
+            /* ĐẢM BẢO KHÔNG BỊ TRÀN, CHO PHÉP CUỘN NGANG KHI BẢNG QUÁ LỚN TRÊN PC */
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        .result-table-wrapper {
+            /* VÙNG CUỘN NGANG CHO BẢNG DESKTOP */
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
-            width: 100%; border-collapse: separate; border-spacing: 4px;
+            /* Ép bảng chia đều cột, tự thu nhỏ chữ và xuống dòng */
+            width: 100%; 
+            table-layout: fixed; 
+            border-collapse: separate; 
+            border-spacing: 4px;
             margin-bottom: 20px;
+            min-width: max-content; /* Ngăn cột bị ép quá nhỏ gây mất chữ */
         }
 
         th {
@@ -308,6 +324,7 @@
             padding: 12px; border-radius: 8px;
             font-size: 14px; font-weight: 700; text-transform: uppercase;
             transition: all 0.5s;
+            word-wrap: break-word; /* Ép xuống dòng nếu chữ quá dài */
         }
         
         td {
@@ -317,24 +334,31 @@
             font-size: 14px; color: var(--primary-text);
             border: 1px solid var(--td-border);
             transition: transform 0.2s, background 0.5s, color 0.5s, border-color 0.5s;
+            word-wrap: break-word; /* Ép xuống dòng nếu chữ quá dài */
         }
 
         /* --- MEDIA QUERY GIAO DIỆN DESKTOP (Min Width: 500px) --- */
         @media (min-width: 500px) {
-            th { font-size: 16px; padding: 15px; }
-            td { font-size: 16px; padding: 14px; }
-            td:first-child { font-size: 16px; }
+            th { font-size: 15px; padding: 12px 8px; } /* Giảm nhẹ size chữ và padding để vừa nhiều cột hơn */
+            td { font-size: 15px; padding: 10px 8px; }
+            td:first-child { font-size: 15px; }
+            /* Cố định độ rộng tối thiểu cho các cột kết quả (để nếu >= 5 thuốc thì sẽ cuộn ngang) */
+            th:not(:first-child), td:not(:first-child) {
+                min-width: 80px; 
+            }
         }
 
         td:first-child { 
             text-align: center; 
             font-weight: 700; color: var(--accent-dark);
             background: var(--td-first-bg);
+            /* Độ rộng cột tên thuốc */
+            width: 120px;
             min-width: 120px;
+            word-wrap: break-word;
         }
         body.dark-mode td:first-child { color: white; }
 
-        /* GIẢM CHIỀU CAO DANH SÁCH THUỐC ĐÃ CHỌN TRÊN PC */
         .selected-drugs td { text-align: left; padding: 8px 15px; background: var(--td-bg); }
         .selected-drugs tr:hover td { background: var(--td-first-bg); }
 
@@ -344,7 +368,6 @@
         .controversial { background-color: var(--st-v-bg) !important; color: var(--st-v-text) !important; font-weight: bold; border: 1px solid var(--st-v-border) !important; }
         .self-intersection { background-color: var(--st-self-bg) !important; color: var(--st-self-text) !important; }
 
-        /* GIẢM SIZE NÚT XÓA KÈM VỚI VIỆC GIẢM CHIỀU CAO HÀNG */
         .delete-btn {
             background: var(--st-i-bg); color: var(--st-i-border); border: 1px solid var(--st-i-border);
             width: 28px; height: 28px; border-radius: 50%;
@@ -502,7 +525,7 @@
                 color: var(--m-header-text);
                 padding: 6px 10px; 
                 font-weight: 700;
-                font-size: 10px; 
+                font-size: 12px; /* Tăng xíu cho dễ đọc trên Card */
                 text-align: center; 
                 transition: all 0.5s;
             }
@@ -510,11 +533,11 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 2px 8px;
+                padding: 4px 8px;
                 border-bottom: 1px solid var(--m-row-border); 
-                font-size: 11px; 
+                font-size: 12px; 
                 flex-wrap: wrap; 
-                line-height: 1.2;
+                line-height: 1.3;
                 transition: border-color 0.5s;
             }
             .m-row:last-child { border-bottom: none; }
@@ -527,10 +550,10 @@
                 transition: color 0.5s;
             }
             .m-badge {
-                padding: 1px 6px;
+                padding: 2px 6px;
                 border-radius: 10px;
                 font-weight: 700;
-                font-size: 9px; 
+                font-size: 10px; 
                 min-width: 50px;
                 text-align: center;
                 flex-shrink: 0; 
@@ -660,7 +683,6 @@
             }
         }
 
-
         let jsonData = null;
         let selectedDrugs = [];
         let suggestionsList = [];
@@ -689,7 +711,6 @@
 
         function checkRotationWarning() {
             const warning = document.getElementById('rotateWarning');
-            // Cập nhật giá trị kiểm tra giao diện mobile (dưới 500px thay vì 768px)
             if (window.innerWidth <= 499 && selectedDrugs.length >= 3) {
                 warning.style.display = 'block'; 
             } else {
@@ -822,7 +843,7 @@
             document.getElementById("tableHeaderTitle").textContent = "THÔNG TIN KẾT QUẢ";
 
             // --- 1. GENERATE DESKTOP TABLE (MATRIX) ---
-            let tableHtml = '<tr><td style="background:var(--th-bg); color:var(--th-text); font-weight:800; text-align:center; vertical-align:middle; border-radius:8px; border: none;">THUỐC</td>'; 
+            let tableHtml = '<tr><td style="background:var(--th-bg); color:var(--th-text); font-weight:800; text-align:center; vertical-align:middle; border-radius:8px; border: none; min-width: 120px;">THUỐC</td>'; 
             selectedDrugs.forEach(drug=>{tableHtml+=`<td style="font-weight:bold; background:var(--accent-bg); color:var(--accent-dark); border-color: transparent;">${drug}</td>`});
             tableHtml+='</tr>';
 
