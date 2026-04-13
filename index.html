@@ -60,7 +60,6 @@
             
             --legend-bg: rgba(255, 255, 255, 0.65);
             
-            /* --- Màu footer và danh sách trống đổi về màu xanh ngọc ở Darkmode --- */
             --footer-text: #ffffff;
             --empty-text-color: #003366; 
             
@@ -185,7 +184,6 @@
             transition: color 0.5s;
         }
 
-        /* Nút chuyển theme tích hợp vào icon bình thí nghiệm */
         .theme-toggle-icon {
             color: var(--icon-flask);
             cursor: pointer;
@@ -205,7 +203,7 @@
         /* --- SEARCH BOX --- */
         .search-container {
             position: relative;
-            z-index: 50; /* ĐÃ THÊM Z-INDEX ĐỂ KHÔNG BỊ CHÌM XUỐNG DƯỚI BẢNG KẾT QUẢ */
+            z-index: 50; 
             background: var(--search-bg);
             backdrop-filter: blur(12px);
             border-radius: 30px; padding: 25px;
@@ -249,7 +247,7 @@
             box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4) !important;
         }
 
-        /* SUGGESTIONS (ĐÃ CHUYỂN THÀNH POPUP POSITION ABSOLUTE) */
+        /* SUGGESTIONS */
         .suggestions {
             position: absolute;
             top: 100%;
@@ -321,7 +319,8 @@
             transition: transform 0.2s, background 0.5s, color 0.5s, border-color 0.5s;
         }
 
-        @media (min-width: 768px) {
+        /* --- MEDIA QUERY GIAO DIỆN DESKTOP (Min Width: 500px) --- */
+        @media (min-width: 500px) {
             th { font-size: 16px; padding: 15px; }
             td { font-size: 16px; padding: 14px; }
             td:first-child { font-size: 16px; }
@@ -335,21 +334,22 @@
         }
         body.dark-mode td:first-child { color: white; }
 
-        .selected-drugs td { text-align: left; padding: 15px; background: var(--td-bg); }
+        /* GIẢM CHIỀU CAO DANH SÁCH THUỐC ĐÃ CHỌN TRÊN PC */
+        .selected-drugs td { text-align: left; padding: 8px 15px; background: var(--td-bg); }
         .selected-drugs tr:hover td { background: var(--td-first-bg); }
 
-        /* Đã cập nhật màu theo biến Theme */
         .compatible { background-color: var(--st-c-bg) !important; color: var(--st-c-text) !important; font-weight: bold; border: 1px solid var(--st-c-border) !important; }
         .incompatible { background-color: var(--st-i-bg) !important; color: var(--st-i-text) !important; font-weight: bold; border: 1px solid var(--st-i-border) !important; }
         .na { background-color: var(--st-n-bg) !important; color: var(--st-n-text) !important; border: 1px solid var(--st-n-border) !important; }
         .controversial { background-color: var(--st-v-bg) !important; color: var(--st-v-text) !important; font-weight: bold; border: 1px solid var(--st-v-border) !important; }
         .self-intersection { background-color: var(--st-self-bg) !important; color: var(--st-self-text) !important; }
 
+        /* GIẢM SIZE NÚT XÓA KÈM VỚI VIỆC GIẢM CHIỀU CAO HÀNG */
         .delete-btn {
             background: var(--st-i-bg); color: var(--st-i-border); border: 1px solid var(--st-i-border);
-            width: 32px; height: 32px; border-radius: 50%;
+            width: 28px; height: 28px; border-radius: 50%;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 16px; transition: all 0.2s; float: right;
+            font-size: 14px; transition: all 0.2s; float: right;
         }
         .delete-btn:hover { background: var(--danger-color); color: white; transform: rotate(90deg); border-color: var(--danger-color); }
 
@@ -405,11 +405,12 @@
 
         /* =================================================================
            TỐI ƯU HÓA CAO CẤP CHO SMARTPHONE (Mobile Layout)
+           ĐIỂM NEO (BREAKPOINT): < 500px
            ================================================================= */
         
         .mobile-results { display: none; }
 
-        @media only screen and (max-width: 768px) {
+        @media only screen and (max-width: 499px) {
             /* --- CẤU HÌNH INPUT CHO MOBILE --- */
             input {
                 color: var(--primary-text) !important;
@@ -448,7 +449,6 @@
                 border-radius: 16px; 
             }
             
-            /* Kích thước Icon trên điện thoại */
             .theme-toggle-icon { font-size: 32px; }
             header h2 { font-size: 16px; flex-direction: row; gap: 8px; }
 
@@ -619,7 +619,7 @@
                         <tr><th id="tableHeaderTitle" colspan="100">THÔNG TIN KẾT QUẢ</th></tr>
                     </thead>
                     <tbody id="tableBody" class="selected-drugs">
-                        <tr><td colspan="2" style="text-align: center; color: var(--empty-text-color); border: none; background: transparent;">Vui lòng nhập hoạt chất để tra cứu</td></tr>
+                        <tr><td colspan="2" style="text-align: center; color: var(--empty-text-color); border: none; background: transparent;">Danh sách trống. Vui lòng nhập tên thuốc.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -676,7 +676,6 @@
             document.getElementById("mobileResults").style.display = "none";
             
             try {
-                // Lấy dữ liệu tĩnh JSON từ GitHub
                 const response = await fetch('tuong_ky_thuoc.json?t=' + new Date().getTime()); 
                 jsonData = await response.json();
                 suggestionsList = [...new Set(jsonData.incompatibilities.flatMap(item => [item.drug1, item.drug2]))].sort();
@@ -690,7 +689,8 @@
 
         function checkRotationWarning() {
             const warning = document.getElementById('rotateWarning');
-            if (window.innerWidth <= 768 && selectedDrugs.length >= 3) {
+            // Cập nhật giá trị kiểm tra giao diện mobile (dưới 500px thay vì 768px)
+            if (window.innerWidth <= 499 && selectedDrugs.length >= 3) {
                 warning.style.display = 'block'; 
             } else {
                 warning.style.display = 'none'; 
@@ -747,7 +747,6 @@
 
             tableBody.innerHTML = "";
             if (selectedDrugs.length === 0) {
-                // Sử dụng biến --empty-text-color
                 tableBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--empty-text-color); border: none; background: transparent;">Danh sách trống. Vui lòng nhập tên thuốc.</td></tr>`;
                 return;
             }
@@ -897,6 +896,10 @@
             if (!suggestions.contains(e.target) && e.target !== searchInput) {
                 suggestions.style.display = 'none';
             }
+        });
+
+        window.addEventListener('resize', function(){
+            checkRotationWarning();
         });
 
         window.onload = fetchData;
