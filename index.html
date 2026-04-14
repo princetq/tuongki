@@ -827,7 +827,7 @@
 
             tableBody.innerHTML = "";
             if (selectedDrugs.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--empty-text-color); border: none; background: transparent;">Danh sách trống. Vui lòng nhập tên thuốc.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--empty-text-color); border: none; background: transparent;">Nhập tối thiểu 2 hoạt chất rồi nhấn TẠO BẢNG KẾT QUẢ</td></tr>`;
                 return;
             }
             tableBody.innerHTML = selectedDrugs.map(drug => `
